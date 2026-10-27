@@ -1,27 +1,20 @@
 # Analisis Data E-Commerce
 
-Proyek ini menganalisis data transaksi e-commerce dan menyediakan dashboard interaktif untuk melihat ringkasan pembayaran, tren bulanan, kategori produk, serta segmentasi pelanggan menggunakan metode RFM.
+Proyek ini mengeksplorasi data transaksi e-commerce untuk melihat tren pembayaran, kategori produk dengan nilai item tertinggi, dan karakteristik pelanggan. Hasil analisis tersedia dalam notebook dan dashboard interaktif berbasis Streamlit.
 
 ## Pertanyaan Bisnis
 
-1. Bagaimana tren total nilai pembayaran per bulan selama periode 2016–2018, serta kategori produk apa yang memberikan kontribusi pendapatan tertinggi dalam periode tersebut?
-2. Bagaimana segmentasi pelanggan berdasarkan **Recency, Frequency, dan Monetary ** selama periode 2016–2018, serta bagaimana hubungan masing-masing segmen terhadap total pendapatan?
+1. Bagaimana tren total pembayaran per bulan selama 2016–2018, dan kategori produk apa yang memiliki total harga item tertinggi?
+2. Bagaimana pelanggan tersegmentasi berdasarkan **Recency**, **Frequency**, dan **Monetary (RFM)**, serta berapa jumlah pelanggan dan total pembayaran pada setiap segmen?
 
-## Fitur Dashboard
+## Isi Proyek
 
-- Filter data berdasarkan tahun (semua tahun, 2016, 2017, atau 2018) dan rentang tanggal.
-- Ringkasan jumlah pembayaran, pesanan, pelanggan unik, dan produk berbeda.
-- Grafik tren total pembayaran per bulan.
-- Grafik 10 kategori produk dengan total harga item tertinggi.
-- Segmentasi pelanggan berdasarkan skor RFM:
-  - **Recency**: jumlah hari sejak pesanan terakhir pada periode yang dipilih.
-  - **Frequency**: jumlah pesanan unik pelanggan.
-  - **Monetary**: total nilai pembayaran pelanggan.
-- Tabel ringkasan segmen dan skor RFM per pelanggan.
+- [`Proyek_Analisis_Data.ipynb`](./Proyek_Analisis_Data.ipynb): notebook eksplorasi dan analisis data.
+- [`dashboard/dashboard.py`](./dashboard/dashboard.py): aplikasi dashboard interaktif.
+- [`E-Commerce Public Dataset/`](./E-Commerce%20Public%20Dataset/): file CSV lokal yang dibaca dashboard.
+- [`requirements.txt`](./requirements.txt): daftar dependensi Python.
 
-Analisis akan mengikuti filter tahun dan tanggal yang dipilih. Pilih **Semua tahun** dan rentang tanggal penuh untuk melihat keseluruhan periode 2016–2018.
-
-## Struktur Proyek
+Struktur file utama:
 
 ```text
 .
@@ -36,71 +29,59 @@ Analisis akan mengikuti filter tahun dan tanggal yang dipilih. Pilih **Semua tah
 │   └── main_data.csv
 ├── Proyek_Analisis_Data.ipynb
 ├── requirements.txt
-└── README.md
+├── README.md
+└── url.txt
 ```
 
-Dashboard membaca file CSV dari folder `E-Commerce Public Dataset` secara langsung. `dashboard/main_data.csv` tidak dibutuhkan untuk menjalankan dashboard ini.
+Dashboard membaca lima file CSV lokal dari folder `E-Commerce Public Dataset`. Notebook mengambil file yang sama dari [repository dataset di GitHub](https://github.com/faizinnoval/E-Commerce-Public-Dataset), sehingga memerlukan koneksi internet saat memuat data. File `dashboard/main_data.csv` tidak digunakan oleh dashboard.
 
-## Membuka Dashboard Online
+## Dashboard Online
 
-Dashboard sudah tersedia di Streamlit Community Cloud:
+Buka [Dashboard Analisis E-Commerce](https://em7uns4wrdxbyszda3hzxt.streamlit.app/). Pilih tahun dan rentang tanggal melalui sidebar untuk memperbarui ringkasan, grafik, dan segmentasi. Jika aplikasi sedang tidak aktif, tunggu hingga Streamlit selesai memulainya kembali.
 
-**[Buka Dashboard Analisis E-Commerce](https://em7uns4wrdxbyszda3hzxt.streamlit.app/)**
+## Menjalankan Dashboard Secara Lokal
 
-Cara menggunakannya:
-
-1. Buka tautan dashboard di browser.
-2. Jika aplikasi sedang tidak aktif, tunggu proses aplikasi dimulai kembali.
-3. Gunakan pilihan tahun dan rentang tanggal di sidebar untuk memfilter data.
-4. Lihat ringkasan pembayaran, tren bulanan, kategori produk, dan segmentasi pelanggan pada halaman dashboard.
-
-Untuk membuka dashboard online, tidak perlu menginstal Python atau mengunduh dataset.
-
-## Persiapan
-
-Pastikan Python sudah terpasang, lalu jalankan perintah berikut dari folder utama proyek.
-
-### Windows (PowerShell)
+Pastikan Python sudah terpasang dan semua file dataset berada di lokasi seperti pada struktur proyek di atas. Jalankan perintah berikut di PowerShell dari folder utama proyek:
 
 ```powershell
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-```
-
-Jika PowerShell tidak mengizinkan aktivasi environment, jalankan perintah instalasi dengan interpreter dari `.venv`:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-## Menjalankan Dashboard
-
-Dari folder utama proyek, jalankan:
-
-```powershell
-streamlit run dashboard/dashboard.py
-```
-
-Jika perintah `streamlit` tidak dikenali, gunakan:
-
-```powershell
 python -m streamlit run dashboard/dashboard.py
 ```
 
-Streamlit akan membuka dashboard di browser. Pastikan folder dan nama file dataset tetap sama agar dashboard dapat menemukan data.
+Streamlit akan menampilkan alamat lokal dashboard di terminal dan biasanya membuka halaman tersebut di browser. Jika aktivasi virtual environment tidak tersedia atau diblokir, jalankan instalasi dan dashboard menggunakan interpreter di `.venv` secara langsung:
 
-## Catatan Perhitungan
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m streamlit run dashboard/dashboard.py
+```
 
-- Total pembayaran diambil dari `payment_value` dan dijumlahkan per `order_id` sebelum digunakan untuk analisis.
-- Jumlah pesanan dihitung sebagai jumlah `order_id` unik.
-- Produk berbeda dihitung berdasarkan jumlah `product_id` unik; grafik kategori menjumlahkan `price` pada setiap item.
-- Perhitungan RFM menggunakan `customer_unique_id` untuk mengidentifikasi pelanggan. Skor tiap komponen dibagi ke dalam lima kelompok berdasarkan peringkat persentil pada data hasil filter, kemudian skor Recency dibalik agar nilai lebih tinggi berarti lebih baik.
-- Nilai transaksi pada dataset ditampilkan sebagai `R$`.
+## Fitur Dashboard
 
-## Kesimpulan
+- Memfilter data berdasarkan tahun (semua tahun, 2016, 2017, atau 2018) dan rentang tanggal.
+- Menampilkan total pembayaran, jumlah pesanan, pelanggan unik, dan produk berbeda pada periode terpilih.
+- Menggambarkan tren total pembayaran per bulan.
+- Menampilkan 10 kategori teratas berdasarkan jumlah harga item.
+- Menampilkan jumlah pelanggan per segmen RFM, ringkasan segmen, dan skor RFM setiap pelanggan.
 
-- Tren pembayaran bulanan dapat berubah-ubah sepanjang 2016–2018. Grafik dashboard membantu menemukan bulan dengan pembayaran tertinggi atau terendah pada periode yang dipilih.
-- Kategori dengan total harga item terbesar menjadi kategori dengan kontribusi nilai item tertinggi pada grafik. Nilainya menggunakan jumlah harga item (`price`), bukan `payment_value`, supaya pembayaran satu pesanan tidak dihitung berulang untuk setiap item dalam pesanan tersebut.
-- Segmentasi RFM membedakan pelanggan menurut kebaruan transaksi, frekuensi pesanan, dan nilai pembayaran. Tabel ringkasan menampilkan jumlah pelanggan dan total pembayaran untuk setiap segmen; total pembayaran segmen dapat digunakan untuk membandingkan kontribusi pendapatan masing-masing kelompok.
-- Segmen **High Value** dapat menjadi prioritas program retensi, sedangkan segmen **Low Value** dapat ditargetkan dengan kampanye re-engagement. Evaluasi jumlah pelanggan serta total pembayaran pada tabel dashboard sebelum menentukan prioritas kampanye.
+Pilih **Semua tahun** dan rentang tanggal penuh untuk melihat seluruh periode yang tersedia.
+
+## Definisi dan Perhitungan
+
+- **Total pembayaran**: jumlah `payment_value`, setelah seluruh baris pembayaran dijumlahkan per `order_id`.
+- **Jumlah pesanan**: jumlah `order_id` unik pada periode terpilih.
+- **Pelanggan unik**: jumlah `customer_unique_id` unik pada pesanan terpilih.
+- **Produk berbeda**: jumlah `product_id` unik pada item dari pesanan terpilih.
+- **Kategori teratas**: kategori diurutkan berdasarkan jumlah `price` pada setiap item. Nilai ini adalah total harga item, bukan total pembayaran pesanan.
+- **Recency**: jumlah hari antara tanggal pesanan terakhir seorang pelanggan dan tanggal pesanan terakhir dalam periode terpilih. Skor lebih tinggi diberikan untuk Recency yang lebih rendah.
+- **Frequency**: jumlah `order_id` unik milik pelanggan dalam periode terpilih.
+- **Monetary**: total `payment_value` pelanggan dalam periode terpilih.
+- Skor setiap komponen RFM dibagi ke lima kelompok berdasarkan peringkat persentil pada data terpilih. Skor Recency dibalik agar nilai lebih rendah mendapat skor lebih tinggi; skor Frequency dan Monetary tidak dibalik. Skor R, F, dan M dijumlahkan, lalu peringkat skor gabungan dibagi menjadi **Low Value** (25% terbawah), **Medium Value** (bagian tengah), dan **High Value** (25% teratas).
+- Nilai transaksi ditampilkan dalam real Brasil (`R$`), mengikuti satuan pada dataset.
+
+Karena penghitungan RFM dan grafik mengikuti periode yang dipilih, hasil segmentasi dapat berubah saat filter tanggal atau tahun diubah.
+
+## Membaca Hasil
+
+Gunakan grafik tren untuk membandingkan pembayaran antarbulan dan grafik kategori untuk menemukan kategori dengan total harga item tertinggi. Pada ringkasan RFM, bandingkan jumlah pelanggan serta total pembayaran tiap segmen. Hasil ini dapat menjadi masukan untuk analisis lanjutan, tetapi tidak dengan sendirinya membuktikan penyebab perubahan pembayaran atau perilaku pelanggan.
