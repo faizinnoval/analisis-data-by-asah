@@ -50,6 +50,12 @@ st.caption(
 )
 
 st.sidebar.header("Filter Periode")
+selected_year = st.sidebar.radio(
+    "Pilih tahun",
+    options=["Semua tahun", 2016, 2017, 2018],
+    horizontal=True,
+)
+
 min_date = orders["order_purchase_timestamp"].min().date()
 max_date = orders["order_purchase_timestamp"].max().date()
 date_range = st.sidebar.date_input(
@@ -69,9 +75,13 @@ if isinstance(date_range, (tuple, list)):
 else:
     start_date = end_date = date_range
 
-period_orders = orders.loc[
-    orders["order_purchase_timestamp"].dt.date.between(start_date, end_date)
-].copy()
+date_mask = orders["order_purchase_timestamp"].dt.date.between(
+    start_date, end_date
+)
+if selected_year != "Semua tahun":
+    date_mask &= orders["order_purchase_timestamp"].dt.year.eq(selected_year)
+
+period_orders = orders.loc[date_mask].copy()
 
 if period_orders.empty:
     st.warning("Tidak ada transaksi pada periode yang dipilih.")
