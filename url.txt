@@ -1,0 +1,14 @@
+https://em7uns4wrdxbyszda3hzxt.streamlit.app/
+
+Cara menjalankan dashboard online:
+1. Buka URL di atas menggunakan browser.
+2. Tunggu dashboard selesai dimuat.
+3. Pilih tahun dan rentang tanggal pada sidebar untuk memfilter data.
+
+Cara menjalankan dashboard secara lokal (Windows, dari folder utama proyek):
+1. Buat virtual environment: py -m venv .venv
+2. Aktifkan: .\.venv\Scripts\Activate.ps1
+3. Pasang dependensi: python -m pip install -r requirements.txt
+4. Jalankan: streamlit run dashboard/dashboard.py
+   Jika perintah streamlit tidak dikenali, jalankan:
+   python -m streamlit run dashboard/dashboard.py
