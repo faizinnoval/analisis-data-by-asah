@@ -59,7 +59,7 @@ Streamlit akan menampilkan alamat lokal dashboard di terminal dan biasanya membu
 
 ## Fitur Dashboard
 
-- Memfilter data berdasarkan tahun (semua tahun, 2016, 2017, atau 2018) dan rentang tanggal.
+- Memfilter data menggunakan tombol tahun 2016, 2017, atau 2018, serta memilih rentang tanggal.
 - Menampilkan total pembayaran, jumlah pesanan, pelanggan unik, dan produk berbeda pada periode terpilih.
 - Menggambarkan tren total pembayaran per bulan.
 - Menampilkan 10 kategori teratas berdasarkan jumlah harga item.
