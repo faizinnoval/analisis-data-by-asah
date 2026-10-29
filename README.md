@@ -44,7 +44,7 @@ Buka [Dashboard Analisis E-Commerce](https://em7uns4wrdxbyszda3hzxt.streamlit.ap
 Pastikan Python sudah terpasang dan semua file dataset berada di lokasi seperti pada struktur proyek di atas. Jalankan perintah berikut di PowerShell dari folder utama proyek:
 
 ```powershell
-py -m venv .venv
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 python -m streamlit run dashboard/dashboard.py
@@ -59,29 +59,27 @@ Streamlit akan menampilkan alamat lokal dashboard di terminal dan biasanya membu
 
 ## Fitur Dashboard
 
-- Memfilter data menggunakan tombol tahun 2016, 2017, atau 2018, serta memilih rentang tanggal.
-- Menampilkan total pembayaran, jumlah pesanan, pelanggan unik, dan produk berbeda pada periode terpilih.
-- Menggambarkan tren total pembayaran per bulan.
-- Menampilkan 10 kategori teratas berdasarkan jumlah harga item.
-- Menampilkan jumlah pelanggan per segmen RFM, ringkasan segmen, dan skor RFM setiap pelanggan.
+- Memfilter data berdasarkan tahun 2016, 2017, atau 2018, lalu memilih rentang tanggal di dalam tahun tersebut. Jika belum memilih tahun, rentang tanggal mencakup seluruh data.
+- Menampilkan jumlah pelanggan, rata-rata Recency, rata-rata Frequency, dan total Monetary untuk periode terpilih.
+- Menampilkan grafik jumlah pelanggan dan total Monetary untuk setiap segmen RFM.
+- Menampilkan tabel ringkasan per segmen yang berisi jumlah pelanggan serta rata-rata Recency, Frequency, dan Monetary.
 
-Pilih **Semua tahun** dan rentang tanggal penuh untuk melihat seluruh periode yang tersedia.
+Dashboard saat ini berfokus pada segmentasi RFM; dashboard tidak menampilkan grafik tren pembayaran bulanan atau peringkat kategori produk.
 
 ## Definisi dan Perhitungan
 
-- **Total pembayaran**: jumlah `payment_value`, setelah seluruh baris pembayaran dijumlahkan per `order_id`.
-- **Jumlah pesanan**: jumlah `order_id` unik pada periode terpilih.
-- **Pelanggan unik**: jumlah `customer_unique_id` unik pada pesanan terpilih.
-- **Produk berbeda**: jumlah `product_id` unik pada item dari pesanan terpilih.
-- **Kategori teratas**: kategori diurutkan berdasarkan jumlah `price` pada setiap item. Nilai ini adalah total harga item, bukan total pembayaran pesanan.
-- **Recency**: jumlah hari antara tanggal pesanan terakhir seorang pelanggan dan tanggal pesanan terakhir dalam periode terpilih. Skor lebih tinggi diberikan untuk Recency yang lebih rendah.
-- **Frequency**: jumlah `order_id` unik milik pelanggan dalam periode terpilih.
-- **Monetary**: total `payment_value` pelanggan dalam periode terpilih.
-- Skor setiap komponen RFM dibagi ke lima kelompok berdasarkan peringkat persentil pada data terpilih. Skor Recency dibalik agar nilai lebih rendah mendapat skor lebih tinggi; skor Frequency dan Monetary tidak dibalik. Skor R, F, dan M dijumlahkan, lalu peringkat skor gabungan dibagi menjadi **Low Value** (25% terbawah), **Medium Value** (bagian tengah), dan **High Value** (25% teratas).
-- Nilai transaksi ditampilkan dalam real Brasil (`R$`), mengikuti satuan pada dataset.
+- **Pelanggan**: dihitung dari jumlah `customer_id` unik pada data yang sudah difilter.
+- **Recency**: jumlah hari antara tanggal pembelian terakhir pelanggan dan satu hari setelah tanggal pembelian terakhir pada seluruh data terpilih. Semakin kecil nilainya, semakin baru pembelian pelanggan.
+- **Frequency**: jumlah baris data pelanggan dalam periode terpilih. Ini bukan jumlah `order_id` unik; karena itu jangan menafsirkan nilainya sebagai jumlah pesanan.
+- **Monetary**: jumlah `price` pada baris data pelanggan dalam periode terpilih. Nilai ini menjumlahkan harga item, bukan `payment_value` atau total pembayaran.
+- **Skor RFM**: setiap komponen diberi skor 1–5 menggunakan pembagian kuantil atas peringkat nilai komponen. Skor Recency dibalik (Recency lebih rendah mendapat skor lebih tinggi), sedangkan Frequency dan Monetary tidak dibalik. Ketika ada nilai yang sama, peringkat berurutan digunakan agar pembagian skor tetap terbentuk.
+- **Segmen pelanggan**: jumlah skor R, F, dan M menghasilkan skor 3–15. Skor 11–15 masuk **High Value**, skor 7–10 **Medium Value**, dan skor di bawah 7 **Low Value**.
+- Dashboard memformat nilai uang sebagai `Rp`, tetapi nilai pada dataset sumber menggunakan real Brasil (BRL). Label mata uang pada dashboard tidak mengonversi nilai tersebut.
 
-Karena penghitungan RFM dan grafik mengikuti periode yang dipilih, hasil segmentasi dapat berubah saat filter tanggal atau tahun diubah.
+Penghitungan mengikuti rentang data yang dipilih, sehingga metrik, skor, dan segmen dapat berubah saat filter tahun atau tanggal diubah.
 
 ## Membaca Hasil
 
-Gunakan grafik tren untuk membandingkan pembayaran antarbulan dan grafik kategori untuk menemukan kategori dengan total harga item tertinggi. Pada ringkasan RFM, bandingkan jumlah pelanggan serta total pembayaran tiap segmen. Hasil ini dapat menjadi masukan untuk analisis lanjutan, tetapi tidak dengan sendirinya membuktikan penyebab perubahan pembayaran atau perilaku pelanggan.
+Mulailah dengan memilih tahun dan rentang tanggal yang ingin dianalisis. Gunakan grafik jumlah pelanggan untuk melihat sebaran pelanggan antarsegmen, lalu bandingkan grafik dan tabel Monetary untuk melihat kontribusi jumlah harga item pada tiap segmen. Rata-rata Recency dan Frequency membantu memberi konteks pada perilaku pembelian pelanggan dalam periode tersebut.
+
+Segmen dibentuk dari skor gabungan relatif terhadap data yang sedang difilter, bukan batas nilai bisnis yang tetap. Karena Frequency menghitung baris data dan Monetary menjumlahkan `price`, keduanya bukan ukuran langsung jumlah pesanan atau total pembayaran. Dashboard ini juga tidak menyediakan tren pembayaran bulanan maupun peringkat kategori produk; gunakan notebook analisis untuk pertanyaan tersebut. Hasil segmentasi bersifat deskriptif dan tidak dengan sendirinya menjelaskan penyebab perilaku pelanggan.
