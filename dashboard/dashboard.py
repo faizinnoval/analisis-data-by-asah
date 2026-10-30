@@ -1,10 +1,9 @@
 from pathlib import Path
-
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
-import os
 
 # Set konfigurasi halaman Streamlit
 st.set_page_config(
@@ -16,7 +15,6 @@ st.set_page_config(
 # Function untuk memuat data
 @st.cache_data
 def load_data():
-    # Mengambil jalur folder tempat dashboard.py berada
     dir_path = os.path.dirname(os.path.realpath(__file__))
     file_path = os.path.join(dir_path, "main_data.csv")
     
@@ -72,9 +70,7 @@ st.markdown(f"**Periode Data:** {start_date} s/d {end_date}")
 
 st.markdown("---")
 
-# ==========================================
-# 1. PERHITUNGAN & SEGMENTASI RFM GABUNGAN
-# ==========================================
+# METRICS UTAMA (METRIC CARDS)
 recent_date = filtered_df['order_purchase_timestamp'].max() + pd.Timedelta(days=1)
 
 rfm_df = filtered_df.groupby('customer_id').agg({
@@ -84,6 +80,69 @@ rfm_df = filtered_df.groupby('customer_id').agg({
 }).reset_index()
 
 rfm_df.columns = ['customer_id', 'recency', 'frequency', 'monetary']
+
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("Total Pelanggan", f"{rfm_df['customer_id'].nunique():,}")
+with col2:
+    st.metric("Rata-rata Recency", f"{rfm_df['recency'].mean():.1f} Hari")
+with col3:
+    st.metric("Rata-rata Frequency", f"{rfm_df['frequency'].mean():.2f} Transaksi")
+with col4:
+    st.metric("Total Revenue", f"Rp {rfm_df['monetary'].sum():,.2f}")
+
+st.markdown("---")
+
+# 1. PERTANYAAN 1: TREN PENDAPATAN & KATEGORI PRODUK
+st.header("📈 Pertanyaan 1: Tren Pendapatan & Performa Kategori Produk")
+
+col_trend, col_cat = st.columns(2)
+
+with col_trend:
+    # Aggregasi bulanan
+    monthly_df = filtered_df.copy()
+    monthly_df['order_month'] = monthly_df['order_purchase_timestamp'].dt.to_period('M').astype(str)
+    monthly_revenue = monthly_df.groupby('order_month')['payment_value'].sum().reset_index()
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    sns.lineplot(
+        data=monthly_revenue,
+        x='order_month',
+        y='payment_value',
+        marker='o',
+        color='#1f77b4',
+        ax=ax
+    )
+    ax.set_title("Tren Pendapatan Bulanan", fontsize=14)
+    ax.set_xlabel("Bulan", fontsize=11)
+    ax.set_ylabel("Total Pendapatan (Rp)", fontsize=11)
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
+
+with col_cat:
+    # Aggregasi kategori produk
+    category_revenue = filtered_df.groupby('product_category_name')['payment_value'].sum().reset_index()
+    top_categories = category_revenue.sort_values(by='payment_value', ascending=False).head(5)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    sns.barplot(
+        data=top_categories,
+        x='payment_value',
+        y='product_category_name',
+        palette='Blues_r',
+        hue='product_category_name',
+        legend=False,
+        ax=ax
+    )
+    ax.set_title("Top 5 Kategori Produk Berdasarkan Pendapatan", fontsize=14)
+    ax.set_xlabel("Total Pendapatan (Rp)", fontsize=11)
+    ax.set_ylabel("Kategori Produk", fontsize=11)
+    st.pyplot(fig)
+
+st.markdown("---")
+
+# 2. PERTANYAAN 2: SEGMENTASI RFM & REVENUE
+st.header("👥 Pertanyaan 2: Segmentasi Pelanggan Berdasarkan Analisis RFM")
 
 # Skor 1-5 menggunakan rank(method='first') agar terdistribusi merata
 rfm_df['r_score'] = pd.qcut(rfm_df['recency'].rank(method='first'), q=5, labels=[5, 4, 3, 2, 1]).astype(int)
@@ -102,26 +161,6 @@ def segment_customer(score):
         return 'Low Value'
 
 rfm_df['customer_segment'] = rfm_df['rfm_score'].apply(segment_customer)
-
-# ==========================================
-# METRICS UTAMA (METRIC CARDS)
-# ==========================================
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric("Total Pelanggan", f"{rfm_df['customer_id'].nunique():,}")
-with col2:
-    st.metric("Rata-rata Recency", f"{rfm_df['recency'].mean():.1f} Hari")
-with col3:
-    st.metric("Rata-rata Frequency", f"{rfm_df['frequency'].mean():.2f} Transaksi")
-with col4:
-    st.metric("Total Revenue", f"Rp {rfm_df['monetary'].sum():,.2f}")
-
-st.markdown("---")
-
-# ==========================================
-# 2. GRAFIK SEGMENTASI & KONTRIBUSI REVENUE
-# ==========================================
-st.subheader("👥 Segmentasi Pelanggan berdasarkan Analisis RFM")
 
 rfm_summary = rfm_df.groupby('customer_segment').agg(
     jumlah_pelanggan=('customer_id', 'count'),
@@ -170,12 +209,9 @@ with col_right:
     ax.set_ylabel("Total Revenue (Rp)", fontsize=11)
     st.pyplot(fig)
 
-# ==========================================
 # 3. TABEL RINGKASAN RFM
-# ==========================================
 st.subheader("📊 Tabel Ringkasan Metrik RFM per Segmen")
 
-# Rename kolom agar rapi dibaca di dashboard
 tabel_tampil = rfm_summary.rename(columns={
     'customer_segment': 'Segmen Pelanggan',
     'jumlah_pelanggan': 'Jumlah Pelanggan',
@@ -196,4 +232,4 @@ st.dataframe(
     use_container_width=True
 )
 
-st.caption("Dashboard Analisis Data E-Commerce — Proyek Akhir Dicoding")
+st.caption("Dashboard Analisis Data E-Commerce — Proyek Dicoding")
