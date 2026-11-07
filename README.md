@@ -33,7 +33,7 @@ Struktur file utama:
 └── url.txt
 ```
 
-Dashboard membaca data gabungan dari `dashboard/main_data.csv`. Notebook mengambil file sumber dari [repository dataset di GitHub](https://github.com/faizinnoval/E-Commerce-Public-Dataset), sehingga memerlukan koneksi internet saat memuat data. Lima CSV di folder `E-Commerce Public Dataset` merupakan data sumber lokal dan tidak dibaca langsung oleh dashboard.
+Dashboard membaca data gabungan dari `dashboard/main_data.csv`. Notebook memuat lima file CSV sumber dari folder `E-Commerce Public Dataset` pada [repository proyek di GitHub](https://github.com/faizinnoval/analisis-data-by-asah.git), sehingga memerlukan koneksi internet saat memuat data. Folder `E-Commerce Public Dataset` juga menyimpan salinan lokal file sumber, tetapi file tersebut tidak dibaca langsung oleh dashboard.
 
 ## Dashboard Online
 
