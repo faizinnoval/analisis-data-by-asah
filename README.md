@@ -4,8 +4,8 @@ Proyek ini mengeksplorasi data transaksi e-commerce untuk melihat tren pembayara
 
 ## Pertanyaan Bisnis
 
-1. Bagaimana tren total pembayaran per bulan selama 2016–2018, dan kategori produk apa yang memiliki total harga item tertinggi?
-2. Bagaimana pelanggan tersegmentasi berdasarkan **Recency**, **Frequency**, dan **Monetary (RFM)**, serta berapa jumlah pelanggan dan total pembayaran pada setiap segmen?
+1. Bagaimana tren total nilai pembayaran per bulan selama periode 2016–2018, dan selama periode tersebut kategori produk apa yang memberikan kontribusi pendapatan tertinggi serta terendah?
+2.  Bagaimana segmentasi pelanggan berdasarkan analisis RFM (Recency, Frequency, & Monetary) selama periode 2016–2018, dan bagaimana kontribusi masing-masing segmen terhadap total pendapatan?
 
 ## Isi Proyek
 
