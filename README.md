@@ -1,11 +1,8 @@
 # Analisis Data E-Commerce
-
-Proyek ini mengeksplorasi data transaksi e-commerce untuk melihat tren pembayaran, kategori produk dengan nilai item tertinggi, dan karakteristik pelanggan. Hasil analisis tersedia dalam notebook dan dashboard interaktif berbasis Streamlit.
-
 ## Pertanyaan Bisnis
 
 1. Bagaimana tren total nilai pembayaran per bulan selama periode 2016–2018, dan selama periode tersebut kategori produk apa yang memberikan kontribusi pendapatan tertinggi serta terendah?
-2.  Bagaimana segmentasi pelanggan berdasarkan analisis RFM (Recency, Frequency, & Monetary) selama periode 2016–2018, dan bagaimana kontribusi masing-masing segmen terhadap total pendapatan?
+2. Bagaimana segmentasi pelanggan berdasarkan analisis RFM (Recency, Frequency, & Monetary) selama periode 2016–2018, dan bagaimana kontribusi masing-masing segmen terhadap total pendapatan?
 
 ## Isi Proyek
 
@@ -61,9 +58,9 @@ Streamlit akan menampilkan alamat lokal dashboard di terminal dan biasanya membu
 
 - Memfilter data berdasarkan tahun 2016, 2017, atau 2018, lalu memilih rentang tanggal. Jika belum memilih tahun, seluruh periode data digunakan.
 - Menampilkan total pelanggan, rata-rata Recency dan Frequency, serta total pembayaran pada periode terpilih.
-- Menampilkan tren pembayaran per bulan dan lima kategori dengan total harga item tertinggi.
-- Mengelompokkan pelanggan ke segmen RFM, lalu membandingkan jumlah pelanggan dan total pembayaran untuk setiap segmen.
-- Menampilkan tabel ringkasan segmen yang mencakup jumlah pelanggan, rata-rata Recency dan Frequency, Monetary berbasis harga item, serta total pembayaran.
+- Menampilkan tren total pembayaran per bulan, lima kategori dengan nilai penjualan item tertinggi, serta kategori tertinggi dan terendah pada periode terpilih.
+- Mengelompokkan pelanggan ke segmen RFM, lalu membandingkan jumlah pelanggan, total pembayaran, dan kontribusi setiap segmen terhadap total pembayaran.
+- Menampilkan tabel ringkasan segmen yang mencakup jumlah pelanggan, rata-rata Recency dan Frequency, Monetary berbasis harga item, total pembayaran, serta persentase kontribusi pembayaran.
 - Menampilkan pesan yang jelas jika rentang tanggal yang dipilih tidak memiliki data.
 
 ## Definisi dan Perhitungan
@@ -73,7 +70,8 @@ Streamlit akan menampilkan alamat lokal dashboard di terminal dan biasanya membu
 - **Frequency**: jumlah `order_id` unik pelanggan dalam periode terpilih.
 - **Monetary RFM**: jumlah `price` untuk setiap item pesanan unik pelanggan. Nilai ini menjumlahkan harga item, bukan `payment_value`.
 - **Total pembayaran**: jumlah `payment_value` unik berdasarkan kombinasi `order_id` dan `payment_sequential`. Deduplikasi ini mencegah nilai pembayaran berulang akibat bentuk data gabungan pada `main_data.csv`.
-- **Kategori produk**: peringkat dihitung dari jumlah `price` item pesanan unik, bukan dari pembayaran order yang dapat mencakup beberapa kategori.
+- **Nilai penjualan kategori produk**: dihitung dari jumlah `price` item pesanan unik. Nilai ini digunakan untuk membandingkan kategori tertinggi dan terendah, bukan dari pembayaran order yang dapat mencakup beberapa kategori.
+- **Kontribusi pendapatan segmen**: total `payment_value` unik milik pelanggan dalam segmen dibagi total pembayaran pada periode terpilih, lalu dinyatakan sebagai persentase.
 - **Tren bulanan**: menjumlahkan pembayaran unik berdasarkan bulan pembelian.
 - **Skor RFM**: setiap komponen diberi skor 1–5 berdasarkan peringkat pelanggan. Skor Recency dibalik (Recency lebih rendah mendapat skor lebih tinggi), sedangkan Frequency dan Monetary tidak dibalik. Peringkat berurutan digunakan ketika nilai sama dan tetap dapat menghasilkan skor pada sampel kecil.
 - **Segmen pelanggan**: jumlah skor R, F, dan M menghasilkan skor 3–15. Skor 11–15 masuk **High Value**, skor 7–10 **Medium Value**, dan skor di bawah 7 **Low Value**.
@@ -81,6 +79,6 @@ Streamlit akan menampilkan alamat lokal dashboard di terminal dan biasanya membu
 
 ## Membaca Hasil
 
-Mulailah dengan memilih tahun dan rentang tanggal yang ingin dianalisis. Grafik tren menunjukkan perubahan total pembayaran bulanan, sedangkan grafik kategori membandingkan total harga item pada lima kategori teratas. Untuk segmentasi, gunakan grafik jumlah pelanggan dan pembayaran per segmen; tabel juga membedakan Monetary berbasis harga item dari total pembayaran.
+Mulailah dengan memilih tahun dan rentang tanggal yang ingin dianalisis. Grafik tren menunjukkan perubahan total pembayaran bulanan; kartu kategori menampilkan nilai penjualan item tertinggi dan terendah, sedangkan grafik kategori membandingkan lima kategori teratas. Untuk segmentasi, grafik dan tabel menunjukkan jumlah pelanggan serta kontribusi setiap segmen terhadap total pembayaran; tabel juga membedakan Monetary berbasis harga item dari total pembayaran.
 
 Segmen dibentuk dari skor gabungan relatif terhadap data yang sedang difilter, bukan batas nilai bisnis yang tetap. Hasil segmentasi bersifat deskriptif dan tidak dengan sendirinya menjelaskan penyebab perilaku pelanggan.

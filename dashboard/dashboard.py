@@ -152,8 +152,43 @@ with col4:
 
 st.markdown("---")
 
-# 1. PERTANYAAN 1: TREN PENDAPATAN & KATEGORI PRODUK
-st.header("📈 Pertanyaan 1: Tren Pendapatan & Performa Kategori Produk")
+# 1. PERTANYAAN 1: TREN PEMBAYARAN BULANAN & KATEGORI PRODUK
+st.header(
+    "📈 Pertanyaan 1: Tren Pembayaran Bulanan & Kategori Produk "
+    "Tertinggi/Terendah (2016–2018)"
+)
+
+category_revenue = (
+    filtered_items.groupby(
+        filtered_items["product_category_name"].fillna(
+            "Kategori tidak diketahui"
+        )
+    )["price"]
+    .sum()
+    .rename_axis("product_category_name")
+    .reset_index(name="price")
+)
+category_revenue = category_revenue.sort_values(
+    by="price", ascending=False
+)
+highest_category = category_revenue.iloc[0]
+lowest_category = category_revenue.iloc[-1]
+
+col_highest, col_lowest = st.columns(2)
+with col_highest:
+    st.metric(
+        f"Kategori dengan Nilai Penjualan Tertinggi: {highest_category['product_category_name']}",
+        f"R$ {highest_category['price']:,.2f}",
+    )
+with col_lowest:
+    st.metric(
+        f"Kategori dengan Nilai Penjualan Terendah: {lowest_category['product_category_name']}",
+        f"R$ {lowest_category['price']:,.2f}",
+    )
+st.caption(
+    "Nilai penjualan kategori dihitung dari jumlah harga item (price), bukan "
+    "pembayaran order yang dapat mencakup beberapa kategori."
+)
 
 col_trend, col_cat = st.columns(2)
 
@@ -187,19 +222,7 @@ with col_trend:
     plt.close(fig)
 
 with col_cat:
-    category_revenue = (
-        filtered_items.groupby(
-            filtered_items["product_category_name"].fillna(
-                "Kategori tidak diketahui"
-            )
-        )["price"]
-        .sum()
-        .rename_axis("product_category_name")
-        .reset_index(name="price")
-    )
-    top_categories = category_revenue.sort_values(
-        by="price", ascending=False
-    ).head(5)
+    top_categories = category_revenue.head(5)
 
     fig, ax = plt.subplots(figsize=(8, 5))
     sns.barplot(
@@ -211,8 +234,8 @@ with col_cat:
         legend=False,
         ax=ax
     )
-    ax.set_title("Top 5 Kategori Berdasarkan Total Harga Item", fontsize=14)
-    ax.set_xlabel("Total Harga Item (R$)", fontsize=11)
+    ax.set_title("5 Kategori dengan Nilai Penjualan Tertinggi", fontsize=14)
+    ax.set_xlabel("Total Nilai Penjualan Item (R$)", fontsize=11)
     ax.set_ylabel("Kategori Produk", fontsize=11)
     fig.tight_layout()
     st.pyplot(fig)
@@ -220,8 +243,11 @@ with col_cat:
 
 st.markdown("---")
 
-# 2. PERTANYAAN 2: SEGMENTASI RFM & REVENUE
-st.header("👥 Pertanyaan 2: Segmentasi Pelanggan Berdasarkan Analisis RFM")
+# 2. PERTANYAAN 2: SEGMENTASI RFM & KONTRIBUSI PENDAPATAN
+st.header(
+    "👥 Pertanyaan 2: Segmentasi Pelanggan RFM & Kontribusi Pendapatan "
+    "per Segmen (2016–2018)"
+)
 
 # Skor 1-5 berdasarkan peringkat agar tetap dapat dihitung pada sampel kecil.
 rfm_df["r_score"] = 6 - np.ceil(rfm_df["recency"].rank(method="first", pct=True) * 5)
@@ -249,6 +275,9 @@ rfm_summary = rfm_df.groupby('customer_segment').agg(
     avg_monetary=('monetary', 'mean'),
     total_payment_value=('payment_value', 'sum')
 ).reset_index()
+rfm_summary["kontribusi_pembayaran_pct"] = (
+    rfm_summary["total_payment_value"] / total_payments * 100
+)
 
 # Urutkan segmen
 segment_order = ['High Value', 'Medium Value', 'Low Value']
@@ -277,17 +306,18 @@ with col_left:
 with col_right:
     fig, ax = plt.subplots(figsize=(8, 5))
     sns.barplot(
-        x='customer_segment', 
-        y='total_payment_value',
-        data=rfm_summary, 
+        x='customer_segment',
+        y='kontribusi_pembayaran_pct',
+        data=rfm_summary,
         palette='Greens_r',
         hue='customer_segment',
         legend=False,
         ax=ax
     )
-    ax.set_title("Total Pembayaran per Segmen Pelanggan", fontsize=14)
+    ax.set_title("Kontribusi Pendapatan per Segmen RFM", fontsize=14)
     ax.set_xlabel("Segmen Pelanggan", fontsize=11)
-    ax.set_ylabel("Total Pembayaran (R$)", fontsize=11)
+    ax.set_ylabel("Kontribusi terhadap Total Pembayaran (%)", fontsize=11)
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda value, _: f"{value:.0f}%"))
     st.pyplot(fig)
     plt.close(fig)
 
@@ -301,7 +331,8 @@ tabel_tampil = rfm_summary.rename(columns={
     'avg_frequency': 'Rata-rata Frequency (Pesanan)',
     'total_monetary': 'Total Monetary (Harga Item, R$)',
     'avg_monetary': 'Rata-rata Monetary (Harga Item, R$)',
-    'total_payment_value': 'Total Pembayaran (R$)'
+    'total_payment_value': 'Total Pembayaran (R$)',
+    'kontribusi_pembayaran_pct': 'Kontribusi Pembayaran (%)'
 })
 
 st.dataframe(
@@ -311,12 +342,15 @@ st.dataframe(
         'Rata-rata Frequency (Pesanan)': '{:.2f}',
         'Total Monetary (Harga Item, R$)': 'R$ {:,.2f}',
         'Rata-rata Monetary (Harga Item, R$)': 'R$ {:,.2f}',
-        'Total Pembayaran (R$)': 'R$ {:,.2f}'
+        'Total Pembayaran (R$)': 'R$ {:,.2f}',
+        'Kontribusi Pembayaran (%)': '{:.2f}%'
     }),
     use_container_width=True
 )
 
 st.caption(
     "Pembayaran dihitung satu kali per urutan pembayaran; harga item dihitung "
-    "satu kali per item pesanan. Nilai mata uang sumber adalah real Brasil (BRL)."
+    "satu kali per item pesanan. Kontribusi segmen adalah persentase pembayaran "
+    "segmen dari total pembayaran pada periode terpilih. Nilai mata uang sumber "
+    "adalah real Brasil (BRL)."
 )
